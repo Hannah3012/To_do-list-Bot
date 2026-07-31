@@ -1,27 +1,25 @@
+import asyncio
 import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from aiogram import Bot, Dispatcher
+
 from config import BOT_TOKEN
 from database import init_db
-import handlers
+from middleware import DbSessionMiddleware
+from handlers import router as todo_router
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
-)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logger = logging.getLogger(__name__)
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    await init_db()
+    
+    dp = Dispatcher()
+    dp.message.middleware(DbSessionMiddleware())
 
-def main():
-    init_db()
-    logger.info("Database initialized.")
-    app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start", handlers.start))
-    app.add_handler(CommandHandler("add", handlers.add_todo))
-    app.add_handler(CommandHandler('help', handlers.help_command))
+    dp.include_router(todo_router)
 
-    logger.info("Bot starting (polling mode)...")
-    app.run_polling(allowed_updates=["message"])
+    bot = Bot(token=BOT_TOKEN)
+    print("Bot is up and running...")
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
 
