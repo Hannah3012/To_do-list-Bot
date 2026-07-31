@@ -1,16 +1,20 @@
-from datetime import datetime
-from sqlalchemy import Column, Integer, BigInteger,String, Boolean,DateTime
-from sqlalchemy.orm import declarative_base
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, BigInteger,String, Boolean, ForeignKey
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column,relationship
+from typing import List
+from database import Base
 
-Base = declarative_base()
+class User(Base):
+    __tablename__= "users"
+    tg_id:Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    full_name: Mapped[str] = mapped_column(String(120))
+    todos: Mapped[list["Todo"]] = relationship("Todo", back_populates="user", cascade="all, delete-orphan")
 
 class Todo(Base):
     __tablename__ = "todos"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(BigInteger, nullable=False, index=True)
-    text = Column(String, nullable=False)
-    is_done = Column(Boolean, default=False, nullable=False)
+    id:Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id:Mapped[int] = mapped_column(ForeignKey("users.tg_id", ondelete="CASCADE"))
+    task:Mapped[str] = mapped_column(String, nullable=False)
+    is_done:Mapped[bool] = mapped_column(default=False, nullable=False)
 
-    def __repr__(self):
-        status = "✅" if self.is_done else "◻️"
-        return f"{status} [{self.id}] {self.text}"
+    user: Mapped["User"] = relationship("User", back_populates="todos") 
