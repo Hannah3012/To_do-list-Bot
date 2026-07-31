@@ -31,11 +31,11 @@ async def cmd_start(message: types.Message, db_session: AsyncSession):
 async def cmd_help(message: types.Message):
     help_text = (
         "**Available To-Do List Commands:**\n\n"
-        "`/add <task>` — Add a new task to your list\n"
-        "`/list` — Display your active and completed tasks\n"
-        "`/done <task_number>` — Mark a specific task as completed\n"
-        "`/delete <task_number>` — Permanently remove a task\n"
-        "`/help` — Display this help overview documentation"
+        "/add <task> — Add a new task to your list\n"
+        "/list — Display your active and completed tasks\n"
+        "/done <task_number> — Mark a specific task as completed\n"
+        "/delete <task_number> — Permanently remove a task\n"
+        "/help — Display this help overview documentation"
     )
     await message.answer(help_text, parse_mode="Markdown")
 
